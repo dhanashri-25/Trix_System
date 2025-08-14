@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useWeb3 } from "../context/Web3Context";
 import toast from "react-hot-toast";
 import axios from "axios";
-import io from "socket.io-client"; // Make sure to install: npm install socket.io-client
+import io from "socket.io-client";
 
 const Play = () => {
   const { account, balances, joinMatch, createMatch, loading } = useWeb3();
@@ -31,7 +31,7 @@ const Play = () => {
         console.log("Match joined:", data);
         if (data.player1 === account.toLowerCase()) {
           // Someone joined your match
-          toast.success(`Player joined your match!`);
+          toast.success("Player joined your match!");
           setCurrentMatch(data);
           setPlayerSymbol("X"); // Creator is X
           setIsPlayerTurn(true); // X goes first
@@ -157,7 +157,6 @@ const Play = () => {
         toast.success("Match created! Waiting for opponent...");
         setStakeAmount("");
         setWaitingForOpponent(true);
-
         // Join the match room for real-time updates
         if (socket) {
           socket.emit("joinMatch", matchId);
@@ -171,7 +170,6 @@ const Play = () => {
   const handleJoinMatch = async (match) => {
     try {
       await joinMatch(match.matchId, match.stakeAmount);
-
       // Join the match room
       if (socket) {
         socket.emit("joinMatch", match.matchId);
@@ -231,7 +229,6 @@ const Play = () => {
       if (response.data.success) {
         // Update local state with server response
         setGameBoard(response.data.board);
-
         if (
           response.data.gameState === "finished" ||
           response.data.gameState === "tie"
@@ -281,35 +278,14 @@ const Play = () => {
     }
   };
 
-  const checkWinner = (board) => {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (let line of lines) {
-      const [a, b, c] = line;
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a];
-      }
-    }
-    return board.includes("") ? null : "tie";
-  };
-
   const GameCell = ({ index, value }) => (
     <button
       onClick={() => handleCellClick(index)}
       disabled={!currentMatch || value !== "" || !isPlayerTurn || gameResult}
-      className={`w-20 h-20 border-2 border-purple-500 bg-white/10 backdrop-blur-sm rounded-lg
+      className={`w-20 h-20 border-2 border-gray-300 bg-white rounded-lg shadow-sm
                  flex items-center justify-center text-3xl font-bold transition-all duration-200
-                 hover:bg-white/20 disabled:cursor-not-allowed ${
-                   value === "X" ? "text-blue-400" : "text-pink-400"
+                 hover:bg-gray-50 hover:shadow-md disabled:cursor-not-allowed ${
+                   value === "X" ? "text-blue-600" : "text-purple-600"
                  } ${gameResult ? "opacity-75" : ""}`}
     >
       {value}
@@ -323,15 +299,14 @@ const Play = () => {
 
   const MatchCard = ({ match, onJoin }) => {
     const stakeInTokens = formatTokenAmount(match.stakeAmount);
-
     return (
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-white font-semibold">
+            <p className="text-gray-900 font-semibold">
               Stake: {stakeInTokens.toFixed(2)} GT
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               Player: {match.player1.slice(0, 6)}...{match.player1.slice(-4)}
             </p>
           </div>
@@ -340,9 +315,9 @@ const Play = () => {
         <button
           onClick={() => onJoin(match)}
           disabled={loading || parseFloat(balances.gt) < stakeInTokens}
-          className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 
-                 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 
-                 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 
+                     text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 
+                     transform hover:scale-105 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {parseFloat(balances.gt) < stakeInTokens
             ? "Insufficient GT"
@@ -355,19 +330,21 @@ const Play = () => {
   // Waiting for opponent screen
   if (waitingForOpponent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-12">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 shadow-lg">
           <div className="animate-spin text-6xl mb-6">⏳</div>
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Waiting for Opponent
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className="text-gray-600 mb-8 leading-relaxed">
             Your match has been created. Waiting for someone to join...
           </p>
           <div className="animate-pulse text-2xl mb-6">🎯</div>
           <button
             onClick={handleCancelWait}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200"
+            className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 
+                       text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 
+                       transform hover:scale-105 shadow-sm"
           >
             Cancel Wait
           </button>
@@ -378,15 +355,15 @@ const Play = () => {
 
   if (!account) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 shadow-lg">
+          <div className="text-6xl mb-6">🔗</div>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Connect Your Wallet
           </h2>
-          <p className="text-gray-300 mb-8">
+          <p className="text-gray-600 mb-8 leading-relaxed">
             Please connect your wallet to play games
           </p>
-          <div className="text-6xl">🔗</div>
         </div>
       </div>
     );
@@ -394,15 +371,20 @@ const Play = () => {
 
   if (parseFloat(balances.gt) === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">No GT Tokens</h2>
-          <p className="text-gray-300 mb-8">You need GT tokens to play games</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 shadow-lg">
+          <div className="text-6xl mb-6">💰</div>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            No GT Tokens
+          </h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            You need GT tokens to play games
+          </p>
           <a
             href="/buy"
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
-                     text-white font-bold py-3 px-8 rounded-xl text-lg transition-all duration-200 
-                     transform hover:scale-105"
+            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
+                       text-white font-semibold py-3 px-8 rounded-xl text-lg transition-all duration-200 
+                       transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             Buy GT Tokens
           </a>
@@ -412,19 +394,21 @@ const Play = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Play{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               Tic Tac Toe
             </span>
           </h1>
-          <p className="text-xl text-gray-300">Stake GT tokens and win big!</p>
-          <div className="mt-4 bg-black/30 backdrop-blur-sm rounded-lg p-4 inline-block">
-            <span className="text-green-400 font-semibold">
+          <p className="text-xl text-gray-600 leading-relaxed">
+            Stake GT tokens and win big!
+          </p>
+          <div className="mt-4 bg-white/80 backdrop-blur-sm rounded-lg p-4 inline-block border border-gray-200 shadow-sm">
+            <span className="text-emerald-600 font-semibold">
               Your GT Balance: {parseFloat(balances.gt).toFixed(2)}
             </span>
           </div>
@@ -433,35 +417,34 @@ const Play = () => {
         {currentMatch ? (
           /* Game Board */
           <div className="max-w-2xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8">
+            <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 shadow-lg">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   Match In Progress
                 </h2>
-                <p className="text-gray-300">
+                <p className="text-gray-600 leading-relaxed">
                   Stake:{" "}
                   {formatTokenAmount(currentMatch.stakeAmount).toFixed(2)} GT
                   each
                 </p>
-                <p className="text-gray-300">
+                <p className="text-gray-600">
                   You are:{" "}
                   <span
                     className={
-                      playerSymbol === "X" ? "text-blue-400" : "text-pink-400"
+                      playerSymbol === "X" ? "text-blue-600" : "text-purple-600"
                     }
                   >
                     {playerSymbol}
                   </span>
                 </p>
-
                 {gameResult ? (
                   <div className="mt-4">
                     {gameResult === "win" && (
-                      <div className="bg-green-600/20 border border-green-500 rounded-lg p-4">
-                        <p className="text-green-400 text-xl font-bold">
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                        <p className="text-emerald-700 text-xl font-bold">
                           🎉 You Won!
                         </p>
-                        <p className="text-green-300">
+                        <p className="text-emerald-600">
                           You earned{" "}
                           {(
                             formatTokenAmount(currentMatch.stakeAmount) * 2
@@ -471,19 +454,19 @@ const Play = () => {
                       </div>
                     )}
                     {gameResult === "lose" && (
-                      <div className="bg-red-600/20 border border-red-500 rounded-lg p-4">
-                        <p className="text-red-400 text-xl font-bold">
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-red-700 text-xl font-bold">
                           😞 You Lost!
                         </p>
-                        <p className="text-red-300">Better luck next time!</p>
+                        <p className="text-red-600">Better luck next time!</p>
                       </div>
                     )}
                     {gameResult === "tie" && (
-                      <div className="bg-yellow-600/20 border border-yellow-500 rounded-lg p-4">
-                        <p className="text-yellow-400 text-xl font-bold">
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p className="text-yellow-700 text-xl font-bold">
                           🤝 It's a Tie!
                         </p>
-                        <p className="text-yellow-300">
+                        <p className="text-yellow-600">
                           Stakes have been returned
                         </p>
                       </div>
@@ -492,7 +475,7 @@ const Play = () => {
                 ) : (
                   <p
                     className={
-                      isPlayerTurn ? "text-green-400" : "text-yellow-400"
+                      isPlayerTurn ? "text-emerald-600" : "text-orange-600"
                     }
                   >
                     {isPlayerTurn ? "Your Turn" : "Opponent's Turn"}
@@ -515,8 +498,9 @@ const Play = () => {
                         resetGameState();
                         setWaitingForOpponent(false);
                       }}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
-                               text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 mr-4"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
+                                 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 
+                                 transform hover:scale-105 shadow-sm mr-4"
                     >
                       Play Again
                     </button>
@@ -526,7 +510,9 @@ const Play = () => {
                         resetGameState();
                         setWaitingForOpponent(false);
                       }}
-                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 
+                                 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 
+                                 transform hover:scale-105 shadow-sm"
                     >
                       Back to Lobby
                     </button>
@@ -541,7 +527,9 @@ const Play = () => {
                         socket.emit("leaveMatch", currentMatch.matchId);
                       }
                     }}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg"
+                    className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 
+                               text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 
+                               transform hover:scale-105 shadow-sm"
                   >
                     Leave Game
                   </button>
@@ -554,13 +542,13 @@ const Play = () => {
           <div>
             {/* Tab Navigation */}
             <div className="flex justify-center mb-8">
-              <div className="bg-black/30 backdrop-blur-sm rounded-xl p-2 flex">
+              <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-2 flex shadow-sm">
                 <button
                   onClick={() => setActiveTab("create")}
                   className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
                     activeTab === "create"
-                      ? "bg-purple-600 text-white shadow-lg"
-                      : "text-gray-300 hover:text-white hover:bg-purple-600/20"
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
                   Create Match
@@ -569,8 +557,8 @@ const Play = () => {
                   onClick={() => setActiveTab("join")}
                   className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
                     activeTab === "join"
-                      ? "bg-purple-600 text-white shadow-lg"
-                      : "text-gray-300 hover:text-white hover:bg-purple-600/20"
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
                   Join Match
@@ -582,20 +570,19 @@ const Play = () => {
             {activeTab === "create" ? (
               /* Create Match Tab */
               <div className="max-w-md mx-auto">
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8">
+                <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 shadow-lg">
                   <div className="text-center mb-8">
                     <div className="text-4xl mb-4">⚔️</div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
                       Create New Match
                     </h2>
-                    <p className="text-gray-300">
+                    <p className="text-gray-600 leading-relaxed">
                       Set your stake and wait for an opponent
                     </p>
                   </div>
-
                   <form onSubmit={handleCreateMatch} className="space-y-6">
                     <div>
-                      <label className="block text-white font-semibold mb-2">
+                      <label className="block text-gray-900 font-semibold mb-2">
                         Stake Amount (GT)
                       </label>
                       <input
@@ -605,23 +592,22 @@ const Play = () => {
                         value={stakeAmount}
                         onChange={(e) => setStakeAmount(e.target.value)}
                         placeholder="Enter stake amount"
-                        className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white 
-                                 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-900 
+                                   placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                       />
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-sm text-gray-500 mt-1">
                         Available: {parseFloat(balances.gt).toFixed(2)} GT
                       </p>
                     </div>
-
                     <button
                       type="submit"
                       disabled={
                         loading || !stakeAmount || parseFloat(stakeAmount) <= 0
                       }
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
-                               text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 
-                               transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
+                                 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 
+                                 transform hover:scale-105 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <div className="flex items-center justify-center">
@@ -640,27 +626,27 @@ const Play = () => {
               <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-8">
                   <div className="text-4xl mb-4">🎲</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Available Matches
                   </h2>
-                  <p className="text-gray-300">
+                  <p className="text-gray-600 leading-relaxed">
                     Choose a match to join and start playing
                   </p>
                 </div>
-
                 {availableMatches.length === 0 ? (
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-12 text-center">
+                  <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 text-center shadow-lg">
                     <div className="text-6xl mb-4">🎭</div>
-                    <h3 className="text-xl font-semibold text-white mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       No Available Matches
                     </h3>
-                    <p className="text-gray-400 mb-6">
+                    <p className="text-gray-600 mb-6 leading-relaxed">
                       Be the first to create a match!
                     </p>
                     <button
                       onClick={() => setActiveTab("create")}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
-                               text-white font-bold py-2 px-6 rounded-lg transition-all duration-200"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
+                                 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 
+                                 transform hover:scale-105 shadow-sm"
                     >
                       Create Match
                     </button>
