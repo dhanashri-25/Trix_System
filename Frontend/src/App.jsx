@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { Web3Provider } from "./context/Web3Context";
 import Navbar from "./components/Navbar";
-import Homepage from "./pages/Homepage";
+import Homepage from "./pages/HomePage";
 import Buy from "./pages/Buy";
 import Play from "./pages/Play";
 import Leaderboard from "./pages/Leaderboard";
