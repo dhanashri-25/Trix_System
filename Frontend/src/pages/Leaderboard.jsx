@@ -15,10 +15,12 @@ const Leaderboard = () => {
         setLoading(true);
         const [leaderboardResponse, userStatsResponse] = await Promise.all([
           axios.get(
-            `http://localhost:5000/api/leaderboard?period=${timeFilter}`
+            `https://trix-system.onrender.com/api/leaderboard?period=${timeFilter}`
           ),
           account
-            ? axios.get(`http://localhost:5000/api/players/${account}/stats`)
+            ? axios.get(
+                `https://trix-system.onrender.com/api/players/${account}/stats`
+              )
             : Promise.resolve({ data: null }),
         ]);
 

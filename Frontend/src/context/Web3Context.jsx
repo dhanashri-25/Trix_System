@@ -184,15 +184,18 @@ export const Web3Provider = ({ children }) => {
       );
 
       // Create match via backend API first
-      const response = await fetch("http://localhost:5000/api/matches/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          player1: account,
-          stakeAmount: ethers.parseUnits(stakeAmount, 18).toString(),
-          matchId,
-        }),
-      });
+      const response = await fetch(
+        "https://trix-system.onrender.com/api/matches/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            player1: account,
+            stakeAmount: ethers.parseUnits(stakeAmount, 18).toString(),
+            matchId,
+          }),
+        }
+      );
 
       if (response.ok) {
         toast.success("Match created successfully!");

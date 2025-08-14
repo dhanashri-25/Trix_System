@@ -20,7 +20,7 @@ const Play = () => {
   // Initialize Socket.IO connection
   useEffect(() => {
     if (account) {
-      const newSocket = io("http://localhost:5000");
+      const newSocket = io("https://trix-system.onrender.com");
       setSocket(newSocket);
 
       // Join user-specific room for notifications
@@ -116,7 +116,7 @@ const Play = () => {
     const fetchMatches = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/matches/available"
+          "https://trix-system.onrender.com/api/matches/available"
         );
         setAvailableMatches(
           response.data.filter((match) => match.player1 !== account)
@@ -177,7 +177,7 @@ const Play = () => {
 
       // Update backend about joining
       const response = await axios.post(
-        "http://localhost:5000/api/matches/join",
+        "https://trix-system.onrender.com/api/matches/join",
         {
           matchId: match.matchId,
           player2: account,
@@ -219,12 +219,15 @@ const Play = () => {
 
     try {
       // Send move to backend
-      const response = await axios.post("http://localhost:5000/api/game/move", {
-        matchId: currentMatch.matchId,
-        player: account,
-        position: index,
-        board: newBoard,
-      });
+      const response = await axios.post(
+        "https://trix-system.onrender.com/api/game/move",
+        {
+          matchId: currentMatch.matchId,
+          player: account,
+          position: index,
+          board: newBoard,
+        }
+      );
 
       if (response.data.success) {
         // Update local state with server response
